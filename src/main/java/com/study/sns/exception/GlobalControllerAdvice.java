@@ -14,7 +14,7 @@ public class GlobalControllerAdvice {
     @ExceptionHandler(SnsApplicationException.class)
     public ResponseEntity<?> applicationHandler(SnsApplicationException e) {
         return ResponseEntity.status(e.getErrorCode().getStatus())
-                .body(Response.error(e.getErrorCode().name(), e.getMessage()));
+                .body(Response.error(e.getErrorCode().name()));
     }
 
 }

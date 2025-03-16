@@ -16,7 +16,7 @@ public class UserJoinResponse {
     public static UserJoinResponse formUser(User user) {
         return new UserJoinResponse(
                 user.getId(),
-                user.getUserName(),
+                user.getUsername(),
                 user.getUserRole()
         );
     }
