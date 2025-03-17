@@ -43,9 +43,10 @@ public class PostEntity {
     void registeredAt() {
         this.registeredAt = Timestamp.from(Instant.now());
     }
+
     @PreUpdate
     void updatedAt() {
-        this.registeredAt = Timestamp.from(Instant.now());
+        this.updatedAt = Timestamp.from(Instant.now());
     }
 
     public static PostEntity of(String title, String body, UserEntity userEntity) {
