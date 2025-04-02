@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -25,6 +27,11 @@ public class AuthenticationConfig {
     @Value("${jwt.secret.key}")
     private String key;
 
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        return (web) -> web.ignoring().requestMatchers("^(?!/api/).*");
+//    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http
@@ -37,10 +44,11 @@ public class AuthenticationConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("^(?!/api/).*").permitAll()
                         .requestMatchers("/api/*/users/join","/api/*/users/login").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() //cors관련 브라우저에서 먼저 요청하는거 허용해주는거
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtTokenFilter(userService, key), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling((exceptionConfig) ->
