@@ -47,4 +47,15 @@ public class PostController {
     public Response<Page<PostResponse>> my(Pageable pageable, Authentication authentication) {
         return Response.success(postService.myList(authentication.getName(), pageable).map(PostResponse::fromPost));
     }
+
+    @PostMapping("/{postId}/likes")
+    public Response<Void> like(@PathVariable("postId") Long postId, Authentication authentication) {
+        postService.like(postId, authentication.getName());
+        return Response.success();
+    }
+
+    @GetMapping("/{postId}/likes")
+    public Response<Long> likeCount(@PathVariable("postId") Long postId) {
+        return Response.success(postService.likeCount(postId));
+    }
 }

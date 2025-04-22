@@ -27,11 +27,6 @@ public class AuthenticationConfig {
     @Value("${jwt.secret.key}")
     private String key;
 
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return (web) -> web.ignoring().requestMatchers("^(?!/api/).*");
-//    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http

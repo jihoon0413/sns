@@ -4,8 +4,10 @@ import com.study.sns.exception.ErrorCode;
 import com.study.sns.exception.SnsApplicationException;
 import com.study.sns.fixture.PostEntityFixture;
 import com.study.sns.fixture.UserEntityFixture;
+import com.study.sns.model.entity.LikeEntity;
 import com.study.sns.model.entity.PostEntity;
 import com.study.sns.model.entity.UserEntity;
+import com.study.sns.repository.LikeEntityRepository;
 import com.study.sns.repository.PostEntityRepository;
 import com.study.sns.repository.UserEntityRepository;
 import com.study.sns.service.PostService;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -34,6 +37,8 @@ public class PostServiceTest {
     @MockitoBean
     private UserEntityRepository userEntityRepository;
 
+    @MockitoBean
+    private LikeEntityRepository likeEntityRepository;
     @Test
     void 포스트작성이_성공한경우() {
 
@@ -183,4 +188,30 @@ public class PostServiceTest {
         when(postEntityRepository.findAllByUser(user, pageable)).thenReturn(Page.empty());
         Assertions.assertDoesNotThrow(() -> postService.myList("", pageable));
     }
+
+    @Test
+    void 좋아요_성공한경우() {
+        Long postId = 1L;
+        PostEntity postEntity = PostEntityFixture.get("username", postId, 1L);
+        UserEntity userEntity = UserEntityFixture.get("username2", "password", 1L);
+        when(postEntityRepository.findById(1L)).thenReturn(Optional.of(postEntity));
+        when(userEntityRepository.findByUserName("userName")).thenReturn(Optional.of(userEntity));
+        when(likeEntityRepository.findByUserAndPost(any(), any())).thenReturn(Optional.empty());
+        Assertions.assertDoesNotThrow(() -> postService.like(postId, "userName"));
+    }
+
+    @Test
+    void 좋아요요청시_이미좋아요를_누른경우() {
+        Long postId = 1L;
+        PostEntity postEntity = PostEntityFixture.get("username", postId, 1L);
+        UserEntity userEntity = UserEntityFixture.get("username2", "password", 1L);
+        LikeEntity likeEntity = LikeEntity.of(userEntity, postEntity);
+        when(postEntityRepository.findById(1L)).thenReturn(Optional.of(postEntity));
+        when(userEntityRepository.findByUserName("userName")).thenReturn(Optional.of(userEntity));
+        when(likeEntityRepository.findByUserAndPost(any(), any())).thenReturn(Optional.of(likeEntity));
+        SnsApplicationException  e = Assertions.assertThrows(SnsApplicationException.class, () -> postService.like(postId, "userName"));
+        Assertions.assertEquals(ErrorCode.ALREADY_LIKED, e.getErrorCode());
+    }
+
+
 }
