@@ -1,18 +1,13 @@
 package com.study.sns.service;
 
-import com.study.sns.controller.response.Response;
 import com.study.sns.exception.ErrorCode;
 import com.study.sns.exception.SnsApplicationException;
+import com.study.sns.model.AlarmArgs;
+import com.study.sns.model.AlarmType;
 import com.study.sns.model.Comment;
 import com.study.sns.model.Post;
-import com.study.sns.model.entity.CommentEntity;
-import com.study.sns.model.entity.LikeEntity;
-import com.study.sns.model.entity.PostEntity;
-import com.study.sns.model.entity.UserEntity;
-import com.study.sns.repository.CommentEntityRepository;
-import com.study.sns.repository.LikeEntityRepository;
-import com.study.sns.repository.PostEntityRepository;
-import com.study.sns.repository.UserEntityRepository;
+import com.study.sns.model.entity.*;
+import com.study.sns.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +22,7 @@ public class PostService {
     private final UserEntityRepository userEntityRepository;
     private final LikeEntityRepository likeEntityRepository;
     private final CommentEntityRepository commentEntityRepository;
+    private final AlarmEntityRepository alarmEntityRepository;
 
     @Transactional
     public void create(String title, String body, String userName) {
@@ -88,6 +84,8 @@ public class PostService {
 
         likeEntityRepository.save(LikeEntity.of(userEntity, postEntity));
 
+        alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
+
     }
 
     @Transactional
@@ -103,6 +101,8 @@ public class PostService {
         PostEntity postEntity = getPostEntityOrException(postId);
 
         commentEntityRepository.save(CommentEntity.of(userEntity,postEntity,comment));
+
+        alarmEntityRepository.save(AlarmEntity.of(postEntity.getUser(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(userEntity.getId(), postEntity.getId())));
 
     }
 

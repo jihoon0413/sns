@@ -7,6 +7,7 @@ import com.study.sns.fixture.UserEntityFixture;
 import com.study.sns.model.entity.LikeEntity;
 import com.study.sns.model.entity.PostEntity;
 import com.study.sns.model.entity.UserEntity;
+import com.study.sns.repository.AlarmEntityRepository;
 import com.study.sns.repository.LikeEntityRepository;
 import com.study.sns.repository.PostEntityRepository;
 import com.study.sns.repository.UserEntityRepository;
@@ -39,6 +40,9 @@ public class PostServiceTest {
 
     @MockitoBean
     private LikeEntityRepository likeEntityRepository;
+
+    @MockitoBean
+    private AlarmEntityRepository alarmEntityRepository;
     @Test
     void 포스트작성이_성공한경우() {
 
@@ -197,6 +201,7 @@ public class PostServiceTest {
         when(postEntityRepository.findById(1L)).thenReturn(Optional.of(postEntity));
         when(userEntityRepository.findByUserName("userName")).thenReturn(Optional.of(userEntity));
         when(likeEntityRepository.findByUserAndPost(any(), any())).thenReturn(Optional.empty());
+        when(alarmEntityRepository.save(any())).thenReturn(null);
         Assertions.assertDoesNotThrow(() -> postService.like(postId, "userName"));
     }
 
