@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -13,10 +14,11 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "\"comment\"")
-@SQLDelete(sql = "UPDATE \"comment\" SET deleted_at = NOW() where id = ?")
-@FilterDef(name = "deletedFilter4")
-@Filter(name = "deletedFilter4", condition = "deleted_at is null")
+@Table(name = "`comment`")
+@SQLDelete(sql = "UPDATE `comment` SET deleted_at = NOW() where id = ?")
+@SQLRestriction("deleted_at is null")
+//@FilterDef(name = "deletedFilter4")
+//@Filter(name = "deletedFilter4", condition = "deleted_at is null")
 public class CommentEntity {
 
     @Id

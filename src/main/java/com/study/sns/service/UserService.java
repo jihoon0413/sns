@@ -58,9 +58,9 @@ public class UserService {
         return JwtTokenUtils.generateToken(userName, secretKey, expiredTimeMs);
     }
 
-    public Page<Alarm> alarmList(String username, Pageable pageable) {
-        UserEntity userEntity = userEntityRepository.findByUserName(username).orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", username)));
+    public Page<Alarm> alarmList(Long userId, Pageable pageable) {
+//        UserEntity userEntity = userEntityRepository.findByUserName(username).orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", username)));
 
-        return alarmEntityRepository.findAllByUser(userEntity, pageable).map(Alarm::fromEntity);
+        return alarmEntityRepository.findAllByUserId(userId, pageable).map(Alarm::fromEntity);
     }
 }

@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -14,10 +15,11 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "\"user\"")
-@SQLDelete(sql = "UPDATE \"user\" SET deleted_at = NOW() where id = ?")
-@FilterDef(name = "deletedFilter")
-@Filter(name = "deletedFilter", condition = "deleted_at is null")
+@Table(name = "`user`")
+@SQLDelete(sql = "UPDATE `user` SET deleted_at = NOW() where id = ?")
+@SQLRestriction("deleted_at is null")
+//@FilterDef(name = "deletedFilter")
+//@Filter(name = "deletedFilter", condition = "deleted_at is null")
 public class UserEntity {
 
     @Id
