@@ -6,6 +6,7 @@ import com.study.sns.model.Alarm;
 import com.study.sns.model.User;
 import com.study.sns.model.entity.UserEntity;
 import com.study.sns.repository.AlarmEntityRepository;
+import com.study.sns.repository.UserCacheRepository;
 import com.study.sns.repository.UserEntityRepository;
 import com.study.sns.util.JwtTokenUtils;
 import jakarta.transaction.Transactional;
@@ -23,6 +24,7 @@ public class UserService {
     private final UserEntityRepository userEntityRepository;
     private final BCryptPasswordEncoder encoder;
     private final AlarmEntityRepository alarmEntityRepository;
+    private final UserCacheRepository userCacheRepository;
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -31,8 +33,10 @@ public class UserService {
     private Long expiredTimeMs;
 
     public User loadUserByUserName(String userName) {
-        return userEntityRepository.findByUserName(userName).map(User::fromEntity).orElseThrow(() ->
-                new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userName)));
+        return userCacheRepository.getUser(userName).orElseGet(() ->
+                userEntityRepository.findByUserName(userName).map(User::fromEntity).orElseThrow(() ->
+                new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userName)))
+        );
     }
 
     @Transactional
@@ -49,18 +53,16 @@ public class UserService {
 
     public String login(String userName, String password) {
 
-        UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userName)));
+        User user = loadUserByUserName(userName);
+        userCacheRepository.setUser(user);
 
-        if(!encoder.matches(password, userEntity.getPassword())) {
+        if(!encoder.matches(password, user.getPassword())) {
             throw new SnsApplicationException(ErrorCode.INVALID_PASSWORD);
         }
-
         return JwtTokenUtils.generateToken(userName, secretKey, expiredTimeMs);
     }
 
     public Page<Alarm> alarmList(Long userId, Pageable pageable) {
-//        UserEntity userEntity = userEntityRepository.findByUserName(username).orElseThrow(() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", username)));
-
         return alarmEntityRepository.findAllByUserId(userId, pageable).map(Alarm::fromEntity);
     }
 }
